@@ -1,0 +1,14 @@
+{
+  "name": "Daily Top Performers Finder",
+  "description": "An extension to find the top performers in the markert on a daily basis.",
+  "version": "1.0",
+  "manifest_version": 3,
+  "action": {
+    "default_popup": "main.html",
+    "default_icon": "images/extension_icon.png"
+  },  
+  "host_permissions": [
+      "https://*/*"
+    ]
+
+}

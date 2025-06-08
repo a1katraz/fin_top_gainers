@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="popup/popup.css" />
+  </head>
+  <body>
+    <h3>Select Gainers from: </h3>
+    <!--<button id="LM">Livemint</button>-->
+    <!--<button id="MC">MoneyControl</button>-->
+    <button id="ET">ET</button>
+    <!--<button id="HBL">Hindu BL</button>-->    
+    <p id="status_message"></p>
+
+    <h3 id="table_title"></h3>
+    <p id="market_status"></p>
+    <p id="status_time"></p>
+      <table>
+        <thead>
+          <template id="table_header_template">
+            <tr>
+              <th id="sl" align="left"></th>
+              <th id="website" align="left"></th>
+              <th id="company_header" align="left"></th>
+              <th id="price_header" align="center"></th>
+              <th id="change_header" align="center"></th>
+              <th id="pct_change_header" align="center"></th>
+            </tr>
+          </template>
+        </thead>
+        <tbody>
+           <template id="table_row_template">
+            <tr>
+              <td id="sl" align="left"></th>
+              <td id="website" align="left"></td>
+              <td id="company" align="left"></td>
+              <td id="price" align="centre"></td>
+              <td id="change" align="center"></td>
+             <td id="pct_change" align="center"></td>
+          </tr>
+        </template>
+        </tbody>
+        
+      </table>
+
+    <template id="reco_template">
+      <li>
+          <h3 class="stock"></h3>
+          <p class="current_price">Tab Pathname</p>
+          <p class="target_price">Tab Pathname</p>
+          <p class="sl_price">Tab Pathname</p>
+      </li>
+    </template>
+
+    <script src="popup/popup.js" type="module"></script>
+  </body>
+</html>

@@ -1,0 +1,10 @@
+1: https://github.com/a1katraz/analyse_analyst_recos/blob/main/get_news_headlines.ipynb
+2: https://ap-south-1.console.aws.amazon.com/console/home?region=ap-south-1#
+3: https://developer.chrome.com/docs/extensions/develop/concepts/declare-permissions
+4: https://developer.chrome.com/docs/extensions/reference
+5: https://developer.chrome.com/docs/extensions/get-started/tutorial/hello-world
+6: https://mail.google.com/mail/u/0/#inbox
+7: https://stackoverflow.com/questions/69236490/how-do-you-get-the-selected-directory-path-from-file-system-access-api-window-sh
+8: https://www.google.com/search?q=javascript+ide&sca_esv=7a5e57396a2b360a&sxsrf=AE3TifPgasxSzbF1eBM1jdXjOvagYCVxgA%3A1748709827410&ei=wzE7aMvkGNm64-EP0721gQI&ved=0ahUKEwiL0s_gk86NAxVZ3TgGHdNeLSAQ4dUDCBA&uact=5&oq=javascript+ide&gs_lp=Egxnd3Mtd2l6LXNlcnAiDmphdmFzY3JpcHQgaWRlMgsQABiABBiRAhiKBTILEAAYgAQYkQIYigUyCxAAGIAEGJECGIoFMgUQABiABDIFEAAYgAQyChAAGIAEGEMYigUyBRAAGIAEMgUQABiABDIFEAAYgAQyBRAAGIAESJ8tUM0rWM0rcAN4AZABAJgBwQGgAcEBqgEDMC4xuAEDyAEA-AEBmAIEoALmAcICChAAGLADGNYEGEeYAwCIBgGQBgiSBwUzLjAuMaAHsgWyBwMyLTG4B8oBwgcFMi0zLjHIBx8&sclient=gws-wiz-serp
+9: https://outlook.live.com/mail/0/
+10: https://developer.chrome.com/docs/extensions/get-started/tutorial/popup-tabs-manager
