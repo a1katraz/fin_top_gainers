@@ -11,7 +11,7 @@ const port = 3000;
 app.use(express.json());
 app.use(cors());
 
-const API_KEY = "AIzaSyACDeNRlyKY2lIMOzn3OzEtEkIZWXieCIo"; 
+const API_KEY = "key"; 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
 let history = [];
