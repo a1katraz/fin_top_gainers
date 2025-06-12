@@ -17,7 +17,7 @@ const con = mysql.createConnection({
   database: "defaultdb"
 });
 
-console.log(con.config);
+//console.log(con.config);
 
 app.use(express.json());
 app.use(cors());
@@ -29,21 +29,54 @@ app.post('/save', (req, res) => {
         return res.status(400).json({ error: "Invalid data format. Expected an array." });
     }
 
-    // Clear the history before processing new data
-    history = [];
-
     // Process each item in the data array
-    data.forEach(item => {
-        if (item.title && typeof item.title === 'string') {
-            history.push({ role: 'user', parts: [{ text: item.title }] });
-        } else {
-            console.warn("Invalid item in data:", item);
+    const values = data.map(item => `(
+        '${item.date}',
+        '${item.site}',
+        '${item.stock_name}',
+        '${item.link}',
+        ${item.end_price},
+        ${item.change_price},
+        ${item.pct_change}
+      )`).join(',');
+
+    let sql = `INSERT INTO top_gainers (perf_date, site, stock_name, link, end_price, change_price, pct_change) VALUES ${values};`;
+
+    con.query(sql, (err, result) => {
+        if (err) {
+            console.error('Error inserting data:', err);
+            return res.status(500).json({ error: "Database insertion error." });
         }
+        console.log('Data inserted successfully:', result);
     });
+    
+    
+    /*
+    data.forEach(item => {
+        console.log('Processing item:', item);
+        con.query(
+            'INSERT INTO top_gainers (perf_date, site, stock_name, link, end_price, change_price, pct_change) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [item.date, item.site, item.stock_name, item.link, item.end_price, item.change_price, item.pct_change],
+            (err, result) => {
+                if (err) {
+                    console.error('Error inserting data:', err);
+                } else {
+                    console.log('Data inserted successfully:', result);
+                }
+            }
+        );
+    });
+    */
 
     res.json({ message: "Data uploaded successfully." });
 });
 
+
+app.listen(port, () => {
+    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Database connection status: ${con.state}`);
+});
+/*
 con.connect(function(err) {
   if (err) throw err;
   console.log("Connected!");
@@ -56,3 +89,5 @@ con.connect(function(err) {
     console.log("Number of records inserted: " + result.affectedRows);
   });
 });
+
+*/

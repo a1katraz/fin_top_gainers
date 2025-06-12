@@ -26,6 +26,7 @@ const message = document.getElementById("status_message");
 etButton.addEventListener('click', openETTopGainersLink.bind(null, 'https://economictimes.indiatimes.com/stocks/marketstats/top-gainers', 20));
 liveMintButton.addEventListener('click', openLiveMintTopGainers.bind(null, 'https://www.livemint.com/market/nse-top-gainers', 20));
 growwButton.addEventListener('click', openGrowwTopGainers.bind(null, 'https://groww.in/markets/top-gainers?index=GIDXNIFTYTOTALMCAP', 20)); // Fetching Groww RSS feed
+saveButton.addEventListener('click', saveTopGainers.bind(null)); // Save the top gainers to the database
 //NSE.addEventListener('click', openNSETopGainers.bind(null, 'https://www.nseindia.com/market-data/top-gainers-losers', 20)); // Fetching Nifty option chain data
 //hinduBusinessLine.addEventListener('click', openRssLink.bind(null, 'https://www.thehindubusinessline.com/rss/stock-market/'));
 
@@ -60,7 +61,7 @@ function openETTopGainersLink(url, topCount) {
         //Add these elements only if the set is empty 
         message.textContent = ""; // Clear loading message
         tableTitle.textContent = 'Today\'s top gainers:' ;
-        console.log("Market Status:", mktStatus, "Status Time:", statTime);
+        //console.log("Market Status:", mktStatus, "Status Time:", statTime);
         marketStatus.textContent = mktStatus ? mktStatus.innerText : 'Market Status Unknown'; // Set market status text
         statusTime.textContent = statTime ? statTime[0].innerText: 'Time Not Known'; // Set the market read time
 
@@ -86,7 +87,7 @@ function openETTopGainersLink(url, topCount) {
         let pct_change = changeVal/(priceVal-changeVal) * 100; // Assuming the link is the price for this example
 
         let element = rowTemplate.content.firstElementChild.cloneNode(true);
-        element.children[0].innerText = i+1;
+        element.children[0].innerText = elements.size + 1;
         element.children[1].innerText = 'ET';
         element.children[2].appendChild(document.createElement('a')); // Create a new anchor element for the company url
         element.children[2].querySelector('a').href = companyLink; // Set the link for the company name
@@ -206,6 +207,7 @@ function openLiveMintTopGainers(url, topCount) {
       // const mktStatus = htmlDoc.getElementsByClassName("dateew"); No status in LiveMint
       const statTime = htmlDoc.getElementsByClassName("dateNew");
       //const items = htmlDoc.querySelectorAll('.MarketTable_marketsCustomTable__4OuKq tbody tr');
+      //console.log(statTime.innerText)
 
       if (items.length === 0) {
         message.textContent = "No Top Gainers found"; // Show no top gainers message
@@ -218,7 +220,7 @@ function openLiveMintTopGainers(url, topCount) {
         tableTitle.textContent = 'Today\'s top gainers:' ;
         //console.log("Market Status:", mktStatus, "Status Time:", statTime);
         //marketStatus.textContent = mktStatus ? mktStatus.innerText : 'Market Status Unknown'; 
-        statusTime.textContent = statTime ? statTime.innerText: 'Time Not Known'; // Set the market read time
+        statusTime.textContent = statTime ? statTime[0].innerText: 'Time Not Known'; // Set the market read time
 
         let thead = tableHeaderTemplate.content.firstElementChild.cloneNode(true); // Clone the header template to actually make the elements
         thead.children[0].innerText = 'Sl.';
@@ -330,6 +332,7 @@ function openGrowwTopGainers(url, topCount) {
         element.children[4].innerText = change;
         element.children[5].innerText = pct_change.toFixed(2) + '%'; // Format percentage change to 2 decimal places
         elements.add(element);
+        console.log('Checkbox', element.children[6]);
         
       }
       
@@ -341,6 +344,66 @@ function openGrowwTopGainers(url, topCount) {
       console.error('Error fetching or parsing HTML:', error);
     });
 
+}
+
+function saveTopGainers() {
+  let  data = []; // Initialize an array to hold the data rows
+  for (let element of elements) {
+    //if(element.children[6].checked) {
+      let site = element.children[1].innerText;
+      let company = element.children[2].innerText;
+      let link = element.children[2].querySelector("a").href;
+      let price = element.children[3].innerText;
+      let change = element.children[4].innerText;
+      let pctChange = element.children[5].innerText;
+
+      // Prepare the data to be sent to the server
+      let data_row = {
+        date: statusTime ? getdatetime(statusTime.innerText) : new Date().toISOString().split('T')[0], // Use current date in YYYY-MM-DD format`
+        site: site, 
+        stock_name: company,
+        link: link,
+        end_price: parseFloat(price.replace(/,/g, '')),
+        change_price: parseFloat(change.replace(/,/g, '')),
+        pct_change: parseFloat(pctChange)/100
+      };
+
+      data.push(data_row); // Add the data row to the array
+    }
+      // Send the data to the server
+  
+      fetch('http://localhost:3010/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ data: data }), // Wrap in an array
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Success:', data);
+        message.textContent = "Top Gainers saved successfully!";
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        message.textContent = "Error saving Top Gainers.";
+      });
+    //}  
+  //}
+}
+
+function getdatetime(dateString) {
+  if(dateString[0]==='A') { //starts with As on for ET
+    let datePart = dateString.substring(6, 24).replace(',', ''); 
+    let dt = new Date(datePart);
+    return dt.toISOString().split('T')[0] + ' ' + dt.toTimeString().split(' ')[0];// Extract the date part from the string
+  }
+  else if (dateString[0]==='L') { //start wityh Last Updated for Livemint
+    let datePart = dateString.substring(18).replace(',', '').replace('|', '')
+    let dt = new Date(datePart);
+    return dt.toISOString().split('T')[0] + ' ' + dt.toTimeString().split(' ')[0]; // Convert to YYYY-MM-DD format
+  }  
+  return new Date().toISOString().slice(0, 19).replace('T', ' '); // Convert to YYYY-MM-DD format
 }
 
 function openRssLink(url) { 
