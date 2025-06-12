@@ -1,84 +1,58 @@
 // server.js
+require('dotenv').config(); // Load environment variables from .env file
 const express = require('express');
-
+const mysql = require('mysql');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { Type } = require('@google/genai');
 const cors = require('cors');
 
 const app = express();
-const port = 3000;
+const port = 3010;
+
+const con = mysql.createConnection({
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: "defaultdb"
+});
+
+console.log(con.config);
 
 app.use(express.json());
 app.use(cors());
 
-const API_KEY = "key"; 
-const genAI = new GoogleGenerativeAI(API_KEY);
+app.post('/save', (req, res) => {
+    const data = req.body.data;
 
-let history = [];
-
-const model = genAI.getGenerativeModel({
-    model: 'gemini-2.0-flash',
-    generationConfig: {
-        temperature: 1.0,
-        top_p: 0.95,
-        top_k: 40,
-        max_output_tokens: 8192,
-        response_mime_type: "application/json",
-        // Making  a response schema in Javascript wasd riddled with errors, so I have specified it in the prompt
-        /*responseSchema: {
-            type: Type.ARRAY,
-            items: {
-                type: Type.OBJECT,
-                properties: {
-                    title: { type: Type.STRING,  },
-                    has_stock_recommendation: { type: Type.BOOLEAN }                        
-                    }, 
-                },
-            propertyOrdering: ["title", "has_stock_recommendation"],
-        }, 
-        */   
-    },
-    safetySettings: [],
-    systemInstruction: "You are a helpful assistant that provides concise and accurate responses to user queries. You should always respond in a friendly and professional manner.",
-});
-
-
-app.post('/chat', async (req, res) => {
-    try {
-        //const prompt = req.body.prompt;
-        //console.log("User input:", prompt);
-        //console.log("Data received:", req.body.data);
-        if (!req.body.prompt || !req.body.data) {
-            return res.status(400).json({ error: "Prompt and data are required." });
-        }
-
-        let history = [];
-
-        const messages = history.map(turn => ({
-            role: turn.role,
-            parts: turn.parts.map(part => ({ text: part.text }))
-        }));
-
-        messages.push({ role: "user", parts: [{ text: req.body.prompt }] });
-        for (const item of req.body.data) {
-            messages.push({ role: "user", parts: [{ text: item.title }] });
-        }
-
-        const result = await model.generateContent({ contents: messages });
-        const modelResponse = result.response.text();
-
-        //console.log("Model response:", modelResponse);
-
-        history.push({ role: 'user', parts: [{ text: req.body.prompt }] });
-        history.push({ role: 'model', parts: [{ text: modelResponse }] });
-
-        res.json({ response: modelResponse });
-    } catch (error) {
-        console.error("Error during conversation:", error);
-        res.status(500).json({ error: "An error occurred while processing your request." });
+    if (!data || !Array.isArray(data)) {
+        return res.status(400).json({ error: "Invalid data format. Expected an array." });
     }
+
+    // Clear the history before processing new data
+    history = [];
+
+    // Process each item in the data array
+    data.forEach(item => {
+        if (item.title && typeof item.title === 'string') {
+            history.push({ role: 'user', parts: [{ text: item.title }] });
+        } else {
+            console.warn("Invalid item in data:", item);
+        }
+    });
+
+    res.json({ message: "Data uploaded successfully." });
 });
 
-app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+con.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected!");
+  var sql = "INSERT INTO top_gainers (perf_date, site, stock_name, link, end_price, change_price, pct_change) VALUES ?";
+  var values = [
+    ['2025-06-11', 'Mint', 'Neuland Labs', 'Haha', 13360.00, 956.00, 0.754]
+  ];
+  con.query(sql, [values], function (err, result) {
+    if (err) throw err;
+    console.log("Number of records inserted: " + result.affectedRows);
+  });
 });

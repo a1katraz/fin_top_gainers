@@ -11,7 +11,9 @@
     <!--<button id="LM">Livemint</button>-->
     <!--<button id="MC">MoneyControl</button>-->
     <button id="ET">ET</button>
-    <!--<button id="HBL">Hindu BL</button>-->    
+    <button id="Livemint">Mint</button>
+    <button id="Groww">Groww</button> 
+    <button id="Save" type="button" disabled style="float: right">Save All</button>   
     <p id="status_message"></p>
 
     <h3 id="table_title"></h3>
@@ -27,6 +29,7 @@
               <th id="price_header" align="center"></th>
               <th id="change_header" align="center"></th>
               <th id="pct_change_header" align="center"></th>
+              <th id="is_saved_header" align="center"></th>
             </tr>
           </template>
         </thead>
@@ -38,7 +41,9 @@
               <td id="company" align="left"></td>
               <td id="price" align="centre"></td>
               <td id="change" align="center"></td>
-             <td id="pct_change" align="center"></td>
+              <td id="pct_change" align="center"></td>
+              <td id="is_saved" align="center">
+                <input type="checkbox" class="save_checkbox" />
           </tr>
         </template>
         </tbody>
