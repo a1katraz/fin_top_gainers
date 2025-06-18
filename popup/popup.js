@@ -1,14 +1,14 @@
-//import { GoogleGenerativeAI } from "https://cdn.skypack.dev/@google/generative-ai";
-
-//const API_KEY = "AIzaSyACDeNRlyKY2lIMOzn3OzEtEkIZWXieCIo";
-
 const rowTemplate = document.getElementById("table_row_template");
 const tableHeaderTemplate = document.getElementById("table_header_template");
 const tableTitle = document.getElementById("table_title");
 const marketStatus = document.getElementById("market_status");
 const statusTime = document.getElementById("status_time");
 
+const typeSelector = document.getElementById("select_type");
+const trackerType = document.getElementById("tracker_type");
+
 const elements = new Set();
+let elementType = 'Gainers';
 
 //const liveMint = document.getElementById("LM");
 //const moneyControl = document.getElementById("MC");
@@ -27,11 +27,15 @@ etButton.addEventListener('click', openETTopGainersLink.bind(null, 'https://econ
 liveMintButton.addEventListener('click', openLiveMintTopGainers.bind(null, 'https://www.livemint.com/market/nse-top-gainers', 20));
 growwButton.addEventListener('click', openGrowwTopGainers.bind(null, 'https://groww.in/markets/top-gainers?index=GIDXNIFTYTOTALMCAP', 20)); // Fetching Groww RSS feed
 saveButton.addEventListener('click', saveTopGainers.bind(null)); // Save the top gainers to the database
+typeSelector.addEventListener('change', changeTrackerType); // Change the tracker type based on the selection
 //NSE.addEventListener('click', openNSETopGainers.bind(null, 'https://www.nseindia.com/market-data/top-gainers-losers', 20)); // Fetching Nifty option chain data
 //hinduBusinessLine.addEventListener('click', openRssLink.bind(null, 'https://www.thehindubusinessline.com/rss/stock-market/'));
 
 function openETTopGainersLink(url, topCount) {
   //Captures Top Gainers from ET
+  if(trackerType.innerText === 'Losers') {
+    url = 'https://economictimes.indiatimes.com/stocks/marketstats/top-losers'; // Change the URL to top losers if the tracker type is Losers
+  }
   message.textContent = "Loading..."; // Show loading message
   saveButton.disabled = true; // Disable the save button while loading
 
@@ -52,7 +56,7 @@ function openETTopGainersLink(url, topCount) {
       //const items = htmlDoc.querySelectorAll('.MarketTable_marketsCustomTable__4OuKq tbody tr');
 
       if (items.length === 0) {
-        message.textContent = "No Top Gainers found"; // Show no top gainers message
+        message.textContent = "No Top " + trackerType.innerText + " found"; // Show no top gainers message
         return;
       }
 
@@ -60,7 +64,7 @@ function openETTopGainersLink(url, topCount) {
       if(elements.size === 0) {
         //Add these elements only if the set is empty 
         message.textContent = ""; // Clear loading message
-        tableTitle.textContent = 'Today\'s top gainers:' ;
+        tableTitle.textContent = 'Today\'s top ' + trackerType.innerText + ':'; // Set the table title based on the tracker type
         //console.log("Market Status:", mktStatus, "Status Time:", statTime);
         marketStatus.textContent = mktStatus ? mktStatus.innerText : 'Market Status Unknown'; // Set market status text
         statusTime.textContent = statTime ? statTime[0].innerText: 'Time Not Known'; // Set the market read time
@@ -189,6 +193,9 @@ function openNSETopGainers(url, topCount) {
 
 function openLiveMintTopGainers(url, topCount) {
   //Captures Top Gainers from LiveMint
+  if(trackerType.innerText === 'Losers') {
+    url = 'https://www.livemint.com/market/nse-top-losers'; // Change the URL to top losers if the tracker type is Losers
+  }
   message.textContent = "Loading..."; // Show loading message
   saveButton.disabled = true; // Disable the save button while loading
 
@@ -210,14 +217,14 @@ function openLiveMintTopGainers(url, topCount) {
       //console.log(statTime.innerText)
 
       if (items.length === 0) {
-        message.textContent = "No Top Gainers found"; // Show no top gainers message
+        message.textContent = "No Top " + trackerType.innerText + " found"; // Show no top gainers message
         return;
       }
 
       //console.log("Items found:", items);
       if (elements.size === 0) {
         message.textContent = ""; // Clear loading message
-        tableTitle.textContent = 'Today\'s top gainers:' ;
+        tableTitle.textContent = 'Today\'s top ' + trackerType.innerText + ':' ;
         //console.log("Market Status:", mktStatus, "Status Time:", statTime);
         //marketStatus.textContent = mktStatus ? mktStatus.innerText : 'Market Status Unknown'; 
         statusTime.textContent = statTime ? statTime[0].innerText: 'Time Not Known'; // Set the market read time
@@ -266,7 +273,10 @@ function openLiveMintTopGainers(url, topCount) {
 }
 
 function openGrowwTopGainers(url, topCount) {
-  //Captures Top Gainers from Groww
+    //Captures Top Gainers from Groww
+  if(trackerType.innerText === 'Losers') {
+    url = 'https://groww.in/markets/top-losers?index=GIDXNIFTYTOTALMCAP'; // Change the URL to top losers if the tracker type is Losers
+  }
   message.textContent = "Loading..."; // Show loading message
   saveButton.disabled = true; // Disable the save button while loading
 
@@ -287,14 +297,14 @@ function openGrowwTopGainers(url, topCount) {
       //const items = htmlDoc.querySelectorAll('.MarketTable_marketsCustomTable__4OuKq tbody tr');
 
       if (items.length === 0) {
-        message.textContent = "No Top Gainers found"; // Show no top gainers message
+        message.textContent = "No Top " + typeSelector.innerText + " found"; // Show no top gainers message
         return;
       }
 
       //console.log("Items found:", items);
       if (elements.size === 0) {
         message.textContent = ""; // Clear loading message
-        tableTitle.textContent = 'Today\'s top gainers:' ;
+        tableTitle.textContent = 'Today\'s top ' + trackerType.innerText + ':' ;
         //console.log("Market Status:", mktStatus, "Status Time:", statTime);
         //marketStatus.textContent = mktStatus ? mktStatus.innerText : 'Market Status Unknown'; 
         statusTime.textContent = statTime ? statTime.innerText: 'Time Not Known'; // Set the market read time
@@ -350,6 +360,7 @@ function saveTopGainers() {
   let  data = []; // Initialize an array to hold the data rows
   for (let element of elements) {
     //if(element.children[6].checked) {
+      let type = trackerType.innerText; // Get the tracker type from the text
       let site = element.children[1].innerText;
       let company = element.children[2].innerText;
       let link = element.children[2].querySelector("a").href;
@@ -360,6 +371,7 @@ function saveTopGainers() {
       // Prepare the data to be sent to the server
       let data_row = {
         date: statusTime ? getdatetime(statusTime.innerText) : new Date().toISOString().split('T')[0], // Use current date in YYYY-MM-DD format`
+        type: type,
         site: site, 
         stock_name: company,
         link: link,
@@ -404,6 +416,19 @@ function getdatetime(dateString) {
     return dt.toISOString().split('T')[0] + ' ' + dt.toTimeString().split(' ')[0]; // Convert to YYYY-MM-DD format
   }  
   return new Date().toISOString().slice(0, 19).replace('T', ' '); // Convert to YYYY-MM-DD format
+}
+
+function changeTrackerType(event) {
+  // Change the tracker type based on the selection 
+  trackerType.innerText = typeSelector.checked ? "Gainers":"Losers"; // Update the tracker type text
+  trackerType.style.color = typeSelector.checked ? "green" : "red"; // Change the color based on the selection
+  elementType = trackerType.innerText; // Update the element type to the new tracker type 
+  if (elements.size > 0) {
+    document.querySelector("thead").innerHTML = ''; // Clear previous header elements 
+    document.querySelector("tbody").innerHTML = ''; // Clear previous elements
+    elements.clear(); // Clear the Set to avoid duplicates
+    tableTitle.textContent = 'Today\'s top ' + trackerType.innerText + ':';
+  }
 }
 
 function openRssLink(url) { 

@@ -32,6 +32,7 @@ app.post('/save', (req, res) => {
     // Process each item in the data array
     const values = data.map(item => `(
         '${item.date}',
+        '${item.type}',
         '${item.site}',
         '${item.stock_name}',
         '${item.link}',
@@ -40,7 +41,7 @@ app.post('/save', (req, res) => {
         ${item.pct_change}
       )`).join(',');
 
-    let sql = `INSERT INTO top_gainers (perf_date, site, stock_name, link, end_price, change_price, pct_change) VALUES ${values};`;
+    let sql = `INSERT INTO top_performers (perf_date, ret_type, site, stock_name, link, end_price, change_price, pct_change) VALUES ${values};`;
 
     con.query(sql, (err, result) => {
         if (err) {
